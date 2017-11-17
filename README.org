@@ -1,0 +1,60 @@
+#+Title: Cache disk inventory
+
+This policy caches inventory data to
+=$(cached_inventory_load.cachedir)/module_protocol/cache_disk_inventory_disk_size.cache=
+for the disk volumes found. It requires
+[[https://github.com/cfengine-content/cached_inventory][cfengine_content:cached_inventory]] for reporting cached values. This policy does
+not require =cf-monitord= in order to work.
+
+* Usage :ATTACH:
+:PROPERTIES:
+:ID:       bec80688-f239-4e3a-bf38-1a91794134cb
+:Attachments: 2017-11-17_Selection_004_2017-11-17_11-45-23.png
+:END:
+
+#+DOWNLOADED: file:///home/nickanderson/Pictures/Screenshots/2017-11-17_Selection_004.png @ 2017-11-17 11:45:23
+[[file:data/be/c80688-f239-4e3a-bf38-1a91794134cb/2017-11-17_Selection_004_2017-11-17_11-45-23.png]]
+
+** Configure cache retention
+
+The default cache retention is 1 day. To override this define
+=def.cache_disk_inventory[retention]=.
+
+Example Augments:
+
+- Include this policy in inputs
+- Include [[https://github.com/cfengine-content/cached_inventory][cfengine_content:cached_inventory]] in inputs
+- Add this policy and [[https://github.com/cfengine-content/cached_inventory][cfengine_content:cached_inventory]] to bundlesequence
+- Override this policies cache retention setting it to 1 minute
+ 
+#+BEGIN_SRC json
+  {
+      "inputs": [
+          "services/cached-inventory/policy/main.cf",
+          "services/cache-disk-inventory/policy/main.cf"
+      ],
+      "vars": {
+          "control_common_bundlesequence_end": [ "cache_disk_inventory", "cached_inventory" ],
+          "cache_disk_inventory":{ "retention": "1" }
+      }
+  }
+#+END_SRC
+
+* Installation
+
+1. Clone the repository
+
+   #+BEGIN_SRC shell 
+     git clone https://github.com/cfengine-content/cache-disk-inventory
+   #+END_SRC
+   
+2. Change into the repository and run ~make install~
+
+   #+BEGIN_SRC shell 
+     cd cache-disk-inventory
+     make install
+   #+END_SRC
+ 
+4. Ensure =main.cf= is included in your policy inputs (ref [[./def.json]] )
+
+5. Ensure =cache_disk_inventory= is added to the bundlesequence. (ref [[./def.json]] )

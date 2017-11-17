@@ -1,0 +1,9 @@
+{
+    "inputs": [
+        "services/cache-disk-inventory/policy/main.cf"
+    ],
+    "vars": {
+        "control_common_bundlesequence_end": [ "cache_disk_inventory" ]
+    }
+
+}

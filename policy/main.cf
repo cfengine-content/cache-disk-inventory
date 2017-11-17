@@ -1,0 +1,28 @@
+bundle agent cache_tcp_process_port_inventory_holder{}
+bundle agent cache_disk_inventory
+{
+  vars:
+      "disk_size_cache" string => "$(cached_inventory_load.cachedir)/module_protocol/$(this.bundle)_disk_size.cache";
+
+      "retention"
+        comment => "Cache retention for 1 day unless overridden by def.cache_disk_inventory[retention]",
+        string => ifelse( isvariable( "def.cache_disk_inventory[retention]"), "$(def.cache_disk_inventory[retention])", "1440" );
+
+
+  files:
+      "$(disk_size_cache)"
+        comment => "We don't trust caches that are older than $(retention) minutes so we purge them",
+        delete => default:tidy,
+        file_select => default:older_than(0, 0, 0, 0, $(retention), 0);
+
+  commands:
+
+      "$(paths.df) -Pkhl 2>/dev/null | $(paths.awk) 'BEGIN {print \"^context=cache_tcp_process_port_inventory_holder\"; print \"^meta=inventory,attribute_name=Disk Sizes\"} NR > 1 {printf \"=disksize[%d]=%s %s\n\", NR-1, $6, $2}' > $(disk_size_cache)"
+        contain => in_shell,
+        ifvarclass => not( fileexists( $(disk_size_cache) ));
+
+  reports:
+    "DEBUG|DEBUG_$(this.bundle)"::
+      "$(this.bundle): Cache retention is $(retention)";
+
+}
